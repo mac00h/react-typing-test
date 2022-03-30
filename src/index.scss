@@ -1,0 +1,23 @@
+@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,700;1,100;1,300;1,700&display=swap");
+
+$font-stack: "Lato", sans-serif;
+$blue0: #16bdca;
+$blue1: #008bc9;
+$gray: rgb(59, 59, 59);
+$gray-light: #dfdfdf;
+$background-global: #3f3f3f;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font: 100% $font-stack;
+  background-color: $background-global;
+  color: $gray-light;
+  margin: 0;
+}
+
+body button {
+  cursor: pointer;
+}

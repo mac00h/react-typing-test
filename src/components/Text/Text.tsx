@@ -11,6 +11,10 @@ let text =
 
 let textmap = mapText(text.split(" "));
 
+const notEmptySpaceBackspace = (a: string) => {
+  return a !== "" && a !== "space" && a !== "Backspace";
+};
+
 export const Text: React.FC = () => {
   const [arrText, setArrText] = useState<string[]>(text.split(" "));
   const [currentMap, setCurrentMap] = useState(textmap);
@@ -24,6 +28,11 @@ export const Text: React.FC = () => {
     (state) => state.typingStore
   );
 
+  useEffect(() => {
+    console.log(newMap);
+    console.log(currentMap);
+  }, [currentMap, newMap]);
+
   //create map as you type!
   useEffect(() => {
     if (!updated) {
@@ -34,7 +43,20 @@ export const Text: React.FC = () => {
       // setArrText((prevState) => prevState.slice(1));
     }
 
-    if (currentLetter !== "" && currentLetter !== "space") {
+    if (currentLetter === "Backspace") {
+      let newObj = newMap[newMap.length - 1];
+      newObj.letter = "";
+
+      setCurrentMap((prevState) => {
+        return [newObj, ...prevState];
+      });
+
+      setNewMap((prevMap) => {
+        return prevMap.slice(0, -1);
+      });
+    }
+
+    if (notEmptySpaceBackspace(currentLetter)) {
       let newObj = currentMap[0];
       newObj.letter = currentLetter;
 

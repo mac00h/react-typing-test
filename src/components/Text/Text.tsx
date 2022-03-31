@@ -1,37 +1,71 @@
 import React, { useEffect, useState } from "react";
-import { useAppSelector } from "../hooks/redux-hooks";
+import { useAppDispatch, useAppSelector } from "../hooks/redux-hooks";
+import { SingleLetter } from "./SingleLetter";
+import { mapText } from "../../helpers/map-text";
+import { generateKey } from "../../helpers/generate-key";
 import "./Text.scss";
+import { TypingActions } from "../../store/typingStore";
 
-interface TextProps {}
 let text =
-  "Lorem ipsum dolor sit amet consectetur adipiscing elit Duis euismod id nunc ac imperdiet Maecenas accumsan dignissim magna quis suscipit odio mattis in Proin aliquam vitae mi eget viverra Donec tristique vitae est eget dapibus Class aptent taciti sociosqu ad litora torquent per conubia nostra per inceptos himenaeos Sed finibus varius semper";
+  "If you cannot understand why someone did something, look at the consequences—and infer the motivation.";
 
-export const Text: React.FC<TextProps> = ({}) => {
+let textmap = mapText(text.split(" "));
+
+export const Text: React.FC = () => {
   const [arrText, setArrText] = useState<string[]>(text.split(" "));
-  const [currentWordCheck, setCurrentWordCheck] = useState<string>();
+  const [currentMap, setCurrentMap] = useState(textmap);
+  const [newMap, setNewMap] = useState<
+    { x: number; y: number; letter: string }[]
+  >([]);
 
-  const { currentLetter } = useAppSelector((state) => state.typingStore);
+  const dispatch = useAppDispatch();
 
+  const { currentLetter, updated } = useAppSelector(
+    (state) => state.typingStore
+  );
+
+  //create map as you type!
   useEffect(() => {
-    setCurrentWordCheck(arrText[0]);
-  }, [arrText]);
+    if (!updated) {
+      return;
+    }
 
-  useEffect(() => {
     if (currentLetter === "space") {
-      setArrText((prevState) => {
+      // setArrText((prevState) => prevState.slice(1));
+    }
+
+    if (currentLetter !== "" && currentLetter !== "space") {
+      let newObj = currentMap[0];
+      newObj.letter = currentLetter;
+
+      setNewMap((prevMap) => {
+        return [...prevMap, newObj];
+      });
+
+      setCurrentMap((prevState) => {
         return prevState.slice(1);
       });
     }
-  }, [currentLetter]);
+
+    dispatch(TypingActions.letterAdded());
+  }, [currentLetter, updated, dispatch, currentMap]);
 
   return (
     <div className="text-wrapper">
       <h2>
-        {arrText.map((e) => {
+        {arrText.map((e, x) => {
+          let word = e.split("");
           return (
-            <div
-              style={currentWordCheck === e ? { color: "red" } : undefined}
-            >{`\t ${e}`}</div>
+            <div className="word" key={x}>
+              {word.map((letter, y) => (
+                <SingleLetter
+                  key={generateKey(letter)}
+                  coords={{ x, y }}
+                  letter={letter}
+                  map={newMap}
+                />
+              ))}
+            </div>
           );
         })}
       </h2>

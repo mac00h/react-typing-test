@@ -2,29 +2,30 @@ import React, { useEffect, useState } from "react";
 import { useAppDispatch } from "../hooks/redux-hooks";
 import { TypingActions } from "../../store/typingStore";
 import "./userInput.scss";
+import { checkKeydown } from "../../helpers/check-keydown";
 
-interface UserInputProps {}
-
-export const UserInput: React.FC<UserInputProps> = ({}) => {
+export const UserInput: React.FC = () => {
   const [currentWord, setCurrentWord] = useState<string>("");
+  // const [allowed, setAllowed] = useState<boolean>(true)
   const dispatch = useAppDispatch();
 
-  const handleTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCurrentWord(e.target.value);
-  };
-
   const handleKeyPress = (e: KeyboardEvent) => {
-    if (e.code !== "Space") {
+    if (e.repeat) {
+      return;
+    }
+
+    if (checkKeydown(e)) {
       dispatch(TypingActions.updateLetter(e.key));
       return;
     }
 
-    setCurrentWord("");
-    dispatch(TypingActions.spaceClicked());
-    return;
+    if (e.code === "Space") {
+      setCurrentWord("");
+      dispatch(TypingActions.spaceClicked());
+      return;
+    }
   };
 
-  //handleSpacebar
   useEffect(() => {
     window.addEventListener("keydown", handleKeyPress);
 
@@ -40,7 +41,7 @@ export const UserInput: React.FC<UserInputProps> = ({}) => {
         autoFocus
         onBlur={(e) => e.currentTarget.focus()}
         value={currentWord}
-        onChange={(e) => handleTyping(e)}
+        onChange={(e) => setCurrentWord(e.target.value)}
       />
     </div>
   );
